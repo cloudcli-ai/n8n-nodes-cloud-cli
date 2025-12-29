@@ -316,9 +316,9 @@ export class CloudCli implements INodeType {
 						operation: ['execute'],
 					},
 				},
-				default: '',
+				default: '={{$parameter["agentEnvironmentId"].cachedResultName?.split(" ")[0] || ""}}',
 				placeholder: 'e.g. backend',
-				description: 'Name of the project inside /workspace/ directory (just the folder name, not the full path)',
+				description: 'Name of the project inside /workspace/ directory. Defaults to the environment subdomain. Only change this if you know what you are doing.',
 			},
 			{
 				displayName: 'Message',
@@ -354,6 +354,10 @@ export class CloudCli implements INodeType {
 						value: 'claude',
 					},
 					{
+						name: 'Codex',
+						value: 'codex',
+					},
+					{
 						name: 'Cursor',
 						value: 'cursor',
 					},
@@ -361,6 +365,7 @@ export class CloudCli implements INodeType {
 				default: 'claude',
 				description: 'AI provider to use',
 			},
+			// TODO: Add a model parameter to allow users to select the AI model 
 			{
 				displayName: 'Additional Options',
 				name: 'additionalOptions',
@@ -428,13 +433,14 @@ export class CloudCli implements INodeType {
 						if (!filter) return true;
 						const name = (env.name as string) || '';
 						const id = (env.id as string) || '';
+						const subdomain = (env.subdomain as string) || '';
 						const filterLower = filter.toLowerCase();
-						return name.toLowerCase().includes(filterLower) || id.toLowerCase().includes(filterLower);
+						return name.toLowerCase().includes(filterLower) || id.toLowerCase().includes(filterLower) || subdomain.toLowerCase().includes(filterLower);
 					})
 					.map((env) => ({
 						name: `${env.name} (${env.status})`,
 						value: env.id as string,
-						url: env.url as string,
+						url: env.access_url as string,
 					}));
 
 				return { results };
