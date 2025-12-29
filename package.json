@@ -1,0 +1,63 @@
+{
+	"name": "@cloudcli-ai/n8n-nodes-cloud-cli",
+	"version": "1.0.4",
+	"description": "n8n community node for Cloud CLI - manage development environments and run AI coding agents",
+	"license": "MIT",
+	"homepage": "https://cloudcli.ai",
+	"keywords": [
+		"n8n-community-node-package",
+		"n8n",
+		"cloud-cli",
+		"cloudcli",
+		"environment",
+		"claude code",
+		"codex",
+		"cursor",
+		"ai",
+		"agent",
+		"automation"
+	],
+	"author": {
+		"name": "Cloud CLI",
+		"email": "hello@cloudcli.ai"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/cloudcli-ai/n8n-nodes-cloud-cli.git"
+	},
+	"main": "index.js",
+	"bugs": {
+		"url": "https://github.com/cloudcli-ai/n8n-nodes-cloud-cli/issues"
+	},
+	"scripts": {
+		"build": "n8n-node build",
+		"dev": "n8n-node dev",
+		"lint": "n8n-node lint",
+		"lint:fix": "n8n-node lint --fix",
+		"prepublishOnly": "n8n-node prerelease"
+	},
+	"files": [
+		"dist"
+	],
+	"n8n": {
+		"n8nNodesApiVersion": 1,
+		"credentials": [
+			"dist/credentials/CloudCliApi.credentials.js"
+		],
+		"nodes": [
+			"dist/nodes/CloudCli/CloudCli.node.js"
+		]
+	},
+	"devDependencies": {
+		"@n8n/node-cli": "*",
+		"eslint": "9.32.0",
+		"prettier": "3.6.2",
+		"typescript": "5.9.2"
+	},
+	"peerDependencies": {
+		"n8n-workflow": "*"
+	},
+	"publishConfig": {
+		"access": "public"
+	}
+}
