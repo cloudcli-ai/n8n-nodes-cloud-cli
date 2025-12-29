@@ -1,6 +1,6 @@
 {
 	"name": "@cloudcli-ai/n8n-nodes-cloud-cli",
-	"version": "1.0.5",
+	"version": "1.0.6",
 	"description": "n8n community node for Cloud CLI - manage development environments and run AI coding agents",
 	"license": "MIT",
 	"homepage": "https://cloudcli.ai",
