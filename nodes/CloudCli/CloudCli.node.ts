@@ -24,6 +24,7 @@ export class CloudCli implements INodeType {
 		inputs: [NodeConnectionTypes.Main],
 		outputs: [NodeConnectionTypes.Main],
 		usableAsTool: true,
+		documentationUrl: 'https://developer.cloudcli.ai',
 		credentials: [
 			{
 				name: 'cloudCliApi',
@@ -63,37 +64,37 @@ export class CloudCli implements INodeType {
 					{
 						name: 'Create',
 						value: 'create',
-						description: 'Create a new development environment',
+						description: 'Create a new development environment. <a href="https://developer.cloudcli.ai/create-environment-3998768e0" target="_blank">Documentation</a>.',
 						action: 'Create an environment',
 					},
 					{
 						name: 'Delete',
 						value: 'delete',
-						description: 'Delete an environment (must be stopped first)',
+						description: 'Delete an environment (must be stopped first). <a href="https://developer.cloudcli.ai/delete-environment-3998770e0" target="_blank">Documentation</a>.',
 						action: 'Delete an environment',
 					},
 					{
 						name: 'Get',
 						value: 'get',
-						description: 'Get details of a specific environment',
+						description: 'Get details of a specific environment. <a href="https://developer.cloudcli.ai/get-environment-3998769e0" target="_blank">Documentation</a>.',
 						action: 'Get an environment',
 					},
 					{
 						name: 'Get Many',
 						value: 'list',
-						description: 'Retrieve a list of environments',
+						description: 'Retrieve a list of environments. <a href="https://developer.cloudcli.ai/list-environments-3998767e0" target="_blank">Documentation</a>.',
 						action: 'Get many environments',
 					},
 					{
 						name: 'Start',
 						value: 'start',
-						description: 'Start a stopped environment',
+						description: 'Start a stopped environment. <a href="https://developer.cloudcli.ai/start-environment-3998771e0" target="_blank">Documentation</a>.',
 						action: 'Start an environment',
 					},
 					{
 						name: 'Stop',
 						value: 'stop',
-						description: 'Stop a running environment',
+						description: 'Stop a running environment. <a href="https://developer.cloudcli.ai/stop-environment-3998772e0" target="_blank">Documentation</a>.',
 						action: 'Stop an environment',
 					},
 				],
@@ -306,21 +307,6 @@ export class CloudCli implements INodeType {
 				],
 			},
 			{
-				displayName: 'Project Name',
-				name: 'projectName',
-				type: 'string',
-				required: true,
-				displayOptions: {
-					show: {
-						resource: ['agent'],
-						operation: ['execute'],
-					},
-				},
-				default: '={{$parameter["agentEnvironmentId"].cachedResultName?.split(" ")[0] || ""}}',
-				placeholder: 'e.g. backend',
-				description: 'Name of the project inside /workspace/ directory. Defaults to the environment subdomain. Only change this if you know what you are doing.',
-			},
-			{
 				displayName: 'Message',
 				name: 'message',
 				type: 'string',
@@ -403,6 +389,58 @@ export class CloudCli implements INodeType {
 						default: '',
 						description: 'GitHub token for private repos or PR creation',
 					},
+					{
+						displayName: 'Project Name (Path)',
+						name: 'projectName',
+						type: 'resourceLocator',
+						default: { mode: 'list', value: '' },
+						description: 'Name of the project inside /workspace/ directory. This is usually the environment name without spaces. Leave empty to auto-select from environment.',
+						modes: [
+							{
+								displayName: 'From List',
+								name: 'list',
+								type: 'list',
+								placeholder: 'Select a project...',
+								typeOptions: {
+									searchListMethod: 'searchProjectName',
+								},
+							},
+							{
+								displayName: 'By Path',
+								name: 'path',
+								type: 'string',
+								placeholder: 'e.g. MyProject',
+								validation: [
+									{
+										type: 'regex',
+										properties: {
+											regex: '^[a-zA-Z0-9_-]+$',
+											errorMessage: 'Project path must not contain spaces',
+										},
+									},
+								],
+							},
+						],
+					},
+					{
+						displayName: 'Return Format',
+						name: 'returnFormat',
+						type: 'options',
+						options: [
+							{
+								name: 'Single Item with Events Array',
+								value: 'single',
+								description: 'Return all events in a single item as {"events": [...]}',
+							},
+							{
+								name: 'Multiple Items (One Per Event)',
+								value: 'multiple',
+								description: 'Return each event as a separate item for easier filtering and processing',
+							},
+						],
+						default: 'single',
+						description: 'Choose how to return the streaming events in the workflow',
+					},
 				],
 			},
 		],
@@ -444,6 +482,44 @@ export class CloudCli implements INodeType {
 					}));
 
 				return { results };
+			},
+			async searchProjectName(
+				this: ILoadOptionsFunctions,
+			): Promise<INodeListSearchResult> {
+				const environmentId = this.getNodeParameter('agentEnvironmentId.value') as string;
+
+				if (!environmentId) {
+					return { results: [] };
+				}
+
+				const credentials = await this.getCredentials('cloudCliApi');
+				const baseUrl = credentials.host as string;
+
+				try {
+					const response = await this.helpers.httpRequest({
+						method: 'GET',
+						url: `${baseUrl}/environments/${environmentId}`,
+						headers: {
+							'X-API-KEY': credentials.apiKey as string,
+						},
+						json: true,
+					});
+
+					const environmentName = (response.name as string) || '';
+					// Remove spaces from the project name
+					const projectName = environmentName.replace(/\s+/g, '');
+
+					const results = [
+						{
+							name: projectName,
+							value: projectName,
+						},
+					];
+
+					return { results };
+				} catch {
+					return { results: [] };
+				}
 			},
 		},
 	};
@@ -556,10 +632,28 @@ export class CloudCli implements INodeType {
 					if (operation === 'execute') {
 						const environmentIdValue = this.getNodeParameter('agentEnvironmentId', itemIndex) as { value: string };
 						const environmentId = environmentIdValue.value;
-						const projectName = this.getNodeParameter('projectName', itemIndex) as string;
+						const additionalOptions = this.getNodeParameter('additionalOptions', itemIndex, {}) as IDataObject;
+
+						// Get project name, default to environment name without spaces if not provided
+						let projectName = '';
+						const projectNameValue = additionalOptions.projectName as { value: string } | undefined;
+
+						if (projectNameValue && projectNameValue.value) {
+							projectName = projectNameValue.value;
+						} else {
+							// Fetch environment details to get the name
+							const envResponse = await this.helpers.httpRequest({
+								method: 'GET',
+								url: `${baseUrl}/environments/${environmentId}`,
+								headers,
+								json: true,
+							});
+							const environmentName = (envResponse.name as string) || '';
+							projectName = environmentName.replace(/\s+/g, '');
+						}
+
 						const message = this.getNodeParameter('message', itemIndex) as string;
 						const provider = this.getNodeParameter('provider', itemIndex) as string;
-						const additionalOptions = this.getNodeParameter('additionalOptions', itemIndex, {}) as IDataObject;
 
 						const body: IDataObject = {
 							environmentId,
@@ -578,14 +672,64 @@ export class CloudCli implements INodeType {
 							body.githubToken = additionalOptions.githubToken;
 						}
 
-						responseData = await this.helpers.httpRequest({
+						// Get the raw SSE stream response
+						const rawResponse = await this.helpers.httpRequest({
 							method: 'POST',
 							url: `${baseUrl}/agent/execute`,
-							headers,
+							headers: {
+								...headers,
+								'Content-Type': 'application/json',
+							},
 							body,
-							json: true,
+							json: false, // Get raw text response
 							timeout: 600000, // 10 minutes timeout for long-running agent tasks
 						});
+
+						// Parse SSE stream into events array
+						try {
+							const events: IDataObject[] = [];
+							const lines = (rawResponse as string).split('\n');
+
+							for (const line of lines) {
+								// SSE format: each event starts with "data: "
+								if (line.startsWith('data: ')) {
+									const jsonStr = line.substring(6).trim(); // Remove 'data: ' prefix
+									if (jsonStr) {
+										try {
+											const eventData = JSON.parse(jsonStr);
+											events.push(eventData);
+										} catch {
+											// Skip lines that aren't valid JSON
+											continue;
+										}
+									}
+								}
+								// Skip empty lines, comments (starting with ':'), and other SSE fields
+							}
+
+							// Check return format preference
+							const returnFormat = additionalOptions.returnFormat || 'single';
+
+							if (returnFormat === 'multiple') {
+								// Return each event as a separate item
+								for (const event of events) {
+									returnData.push({
+										json: event,
+										pairedItem: itemIndex,
+									});
+								}
+								continue; // Skip the default push at the end
+							} else {
+								// Return all events in a single item
+								responseData = { events };
+							}
+						} catch (error) {
+							// If parsing fails completely, return the raw response for debugging
+							responseData = {
+								raw_response: rawResponse,
+								parse_error: error.message,
+							};
+						}
 					} else {
 						throw new NodeOperationError(this.getNode(), `Unknown operation: ${operation}`, {
 							itemIndex,
