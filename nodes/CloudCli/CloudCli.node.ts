@@ -455,14 +455,15 @@ export class CloudCli implements INodeType {
 				const credentials = await this.getCredentials('cloudCliApi');
 				const baseUrl = credentials.host as string;
 
-				const response = await this.helpers.httpRequest({
-					method: 'GET',
-					url: `${baseUrl}/environments`,
-					headers: {
-						'X-API-KEY': credentials.apiKey as string,
+				const response = await this.helpers.httpRequestWithAuthentication.call(
+					this,
+					'cloudCliApi',
+					{
+						method: 'GET',
+						url: `${baseUrl}/environments`,
+						json: true,
 					},
-					json: true,
-				});
+				);
 
 				const environments = (response.environments || []) as IDataObject[];
 
@@ -496,14 +497,15 @@ export class CloudCli implements INodeType {
 				const baseUrl = credentials.host as string;
 
 				try {
-					const response = await this.helpers.httpRequest({
-						method: 'GET',
-						url: `${baseUrl}/environments/${environmentId}`,
-						headers: {
-							'X-API-KEY': credentials.apiKey as string,
+					const response = await this.helpers.httpRequestWithAuthentication.call(
+						this,
+						'cloudCliApi',
+						{
+							method: 'GET',
+							url: `${baseUrl}/environments/${environmentId}`,
+							json: true,
 						},
-						json: true,
-					});
+					);
 
 					const environmentName = (response.name as string) || '';
 					// Remove spaces from the project name
@@ -530,11 +532,6 @@ export class CloudCli implements INodeType {
 
 		const credentials = await this.getCredentials('cloudCliApi');
 		const baseUrl = credentials.host as string;
-		const apiKey = credentials.apiKey as string;
-
-		const headers: IDataObject = {
-			'X-API-KEY': apiKey,
-		};
 
 		for (let itemIndex = 0; itemIndex < items.length; itemIndex++) {
 			try {
@@ -548,12 +545,15 @@ export class CloudCli implements INodeType {
 						const status = this.getNodeParameter('status', itemIndex, '') as string;
 						const queryParams = status ? `?status=${status}` : '';
 
-						const response = await this.helpers.httpRequest({
-							method: 'GET',
-							url: `${baseUrl}/environments${queryParams}`,
-							headers,
-							json: true,
-						});
+						const response = await this.helpers.httpRequestWithAuthentication.call(
+							this,
+							'cloudCliApi',
+							{
+								method: 'GET',
+								url: `${baseUrl}/environments${queryParams}`,
+								json: true,
+							},
+						);
 
 						// Extract environments array and return each as separate item
 						const environments = (response.environments || []) as IDataObject[];
@@ -568,12 +568,15 @@ export class CloudCli implements INodeType {
 						const environmentIdValue = this.getNodeParameter('environmentId', itemIndex) as { value: string };
 						const environmentId = environmentIdValue.value;
 
-						responseData = await this.helpers.httpRequest({
-							method: 'GET',
-							url: `${baseUrl}/environments/${environmentId}`,
-							headers,
-							json: true,
-						});
+						responseData = await this.helpers.httpRequestWithAuthentication.call(
+							this,
+							'cloudCliApi',
+							{
+								method: 'GET',
+								url: `${baseUrl}/environments/${environmentId}`,
+								json: true,
+							},
+						);
 					} else if (operation === 'create') {
 						const name = this.getNodeParameter('name', itemIndex) as string;
 						const subdomain = this.getNodeParameter('subdomain', itemIndex) as string;
@@ -584,45 +587,57 @@ export class CloudCli implements INodeType {
 						if (githubUrl) body.github_url = githubUrl;
 						if (githubToken) body.github_token = githubToken;
 
-						responseData = await this.helpers.httpRequest({
-							method: 'POST',
-							url: `${baseUrl}/environments`,
-							headers,
-							body,
-							json: true,
-						});
+						responseData = await this.helpers.httpRequestWithAuthentication.call(
+							this,
+							'cloudCliApi',
+							{
+								method: 'POST',
+								url: `${baseUrl}/environments`,
+								body,
+								json: true,
+							},
+						);
 					} else if (operation === 'delete') {
 						const environmentIdValue = this.getNodeParameter('environmentId', itemIndex) as { value: string };
 						const environmentId = environmentIdValue.value;
 
-						await this.helpers.httpRequest({
-							method: 'DELETE',
-							url: `${baseUrl}/environments/${environmentId}`,
-							headers,
-							json: true,
-						});
+						await this.helpers.httpRequestWithAuthentication.call(
+							this,
+							'cloudCliApi',
+							{
+								method: 'DELETE',
+								url: `${baseUrl}/environments/${environmentId}`,
+								json: true,
+							},
+						);
 
 						responseData = { deleted: true };
 					} else if (operation === 'start') {
 						const environmentIdValue = this.getNodeParameter('environmentId', itemIndex) as { value: string };
 						const environmentId = environmentIdValue.value;
 
-						responseData = await this.helpers.httpRequest({
-							method: 'POST',
-							url: `${baseUrl}/environments/${environmentId}/start`,
-							headers,
-							json: true,
-						});
+						responseData = await this.helpers.httpRequestWithAuthentication.call(
+							this,
+							'cloudCliApi',
+							{
+								method: 'POST',
+								url: `${baseUrl}/environments/${environmentId}/start`,
+								json: true,
+							},
+						);
 					} else if (operation === 'stop') {
 						const environmentIdValue = this.getNodeParameter('environmentId', itemIndex) as { value: string };
 						const environmentId = environmentIdValue.value;
 
-						responseData = await this.helpers.httpRequest({
-							method: 'POST',
-							url: `${baseUrl}/environments/${environmentId}/stop`,
-							headers,
-							json: true,
-						});
+						responseData = await this.helpers.httpRequestWithAuthentication.call(
+							this,
+							'cloudCliApi',
+							{
+								method: 'POST',
+								url: `${baseUrl}/environments/${environmentId}/stop`,
+								json: true,
+							},
+						);
 					} else {
 						throw new NodeOperationError(this.getNode(), `Unknown operation: ${operation}`, {
 							itemIndex,
@@ -642,12 +657,15 @@ export class CloudCli implements INodeType {
 							projectName = projectNameValue.value;
 						} else {
 							// Fetch environment details to get the name
-							const envResponse = await this.helpers.httpRequest({
-								method: 'GET',
-								url: `${baseUrl}/environments/${environmentId}`,
-								headers,
-								json: true,
-							});
+							const envResponse = await this.helpers.httpRequestWithAuthentication.call(
+								this,
+								'cloudCliApi',
+								{
+									method: 'GET',
+									url: `${baseUrl}/environments/${environmentId}`,
+									json: true,
+								},
+							);
 							const environmentName = (envResponse.name as string) || '';
 							projectName = environmentName.replace(/\s+/g, '');
 						}
@@ -673,17 +691,20 @@ export class CloudCli implements INodeType {
 						}
 
 						// Get the raw SSE stream response
-						const rawResponse = await this.helpers.httpRequest({
-							method: 'POST',
-							url: `${baseUrl}/agent/execute`,
-							headers: {
-								...headers,
-								'Content-Type': 'application/json',
+						const rawResponse = await this.helpers.httpRequestWithAuthentication.call(
+							this,
+							'cloudCliApi',
+							{
+								method: 'POST',
+								url: `${baseUrl}/agent/execute`,
+								headers: {
+									'Content-Type': 'application/json',
+								},
+								body,
+								json: false, // Get raw text response
+								timeout: 600000, // 10 minutes timeout for long-running agent tasks
 							},
-							body,
-							json: false, // Get raw text response
-							timeout: 600000, // 10 minutes timeout for long-running agent tasks
-						});
+						);
 
 						// Parse SSE stream into events array
 						try {

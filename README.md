@@ -29,7 +29,6 @@ You need a Cloud CLI API key to use this node. Get your API key from [cloudcli.a
 
 ## Resources
 
-- [Cloud CLI Documentation](https://cloudcli.ai/docs)
 - [n8n Community Nodes Documentation](https://docs.n8n.io/integrations/community-nodes/)
 
 ## License
