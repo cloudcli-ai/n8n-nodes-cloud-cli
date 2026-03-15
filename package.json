@@ -1,7 +1,7 @@
 {
 	"name": "@cloudcli-ai/n8n-nodes-cloud-cli",
 	"version": "1.0.8",
-	"description": "n8n community node for Cloud CLI - manage development environments and run AI coding agents",
+	"description": "n8n community node for CloudCLI - manage development environments and run AI coding agents on your own remote development environments on demand and from any workflow",
 	"license": "MIT",
 	"homepage": "https://cloudcli.ai",
 	"keywords": [
@@ -9,18 +9,22 @@
 		"n8n",
 		"cloud-cli",
 		"cloudcli",
-		"environment",
+		"dev environment",
 		"claude code",
 		"cursor",
+		"Gemini",
 		"codex",
 		"ai",
-		"agent",
+		"ai agent",
 		"github",
 		"automation",
-		"AI development"
+		"AI development",
+		"remote development environment",
+		"coding agent",
+		"claude code mobile"
 	],
 	"author": {
-		"name": "Cloud CLI",
+		"name": "CloudCLI",
 		"email": "hello@cloudcli.ai"
 	},
 	"repository": {

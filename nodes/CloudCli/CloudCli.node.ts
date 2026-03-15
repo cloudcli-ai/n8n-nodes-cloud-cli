@@ -11,7 +11,7 @@ import { NodeConnectionTypes, NodeOperationError } from 'n8n-workflow';
 
 export class CloudCli implements INodeType {
 	description: INodeTypeDescription = {
-		displayName: 'Cloud CLI',
+		displayName: 'CloudCLI',
 		name: 'cloudCli',
 		icon: 'file:logo.svg',
 		group: ['transform'],
@@ -19,7 +19,7 @@ export class CloudCli implements INodeType {
 		subtitle: '={{$parameter["operation"] + ": " + $parameter["resource"]}}',
 		description: 'Manage CloudCLI development environments and run AI agents',
 		defaults: {
-			name: 'Cloud CLI',
+			name: 'CloudCLI',
 		},
 		inputs: [NodeConnectionTypes.Main],
 		outputs: [NodeConnectionTypes.Main],
@@ -64,37 +64,37 @@ export class CloudCli implements INodeType {
 					{
 						name: 'Create',
 						value: 'create',
-						description: 'Create a new development environment. <a href="https://developer.cloudcli.ai/create-environment-3998768e0" target="_blank">Documentation</a>.',
+						description: 'Create a new development environment',
 						action: 'Create an environment',
 					},
 					{
 						name: 'Delete',
 						value: 'delete',
-						description: 'Delete an environment (must be stopped first). <a href="https://developer.cloudcli.ai/delete-environment-3998770e0" target="_blank">Documentation</a>.',
+						description: 'Delete an environment (must be stopped first)',
 						action: 'Delete an environment',
 					},
 					{
 						name: 'Get',
 						value: 'get',
-						description: 'Get details of a specific environment. <a href="https://developer.cloudcli.ai/get-environment-3998769e0" target="_blank">Documentation</a>.',
+						description: 'Get details of a specific environment',
 						action: 'Get an environment',
 					},
 					{
 						name: 'Get Many',
 						value: 'list',
-						description: 'Retrieve a list of environments. <a href="https://developer.cloudcli.ai/list-environments-3998767e0" target="_blank">Documentation</a>.',
+						description: 'Retrieve a list of environments',
 						action: 'Get many environments',
 					},
 					{
 						name: 'Start',
 						value: 'start',
-						description: 'Start a stopped environment. <a href="https://developer.cloudcli.ai/start-environment-3998771e0" target="_blank">Documentation</a>.',
+						description: 'Start a stopped environment',
 						action: 'Start an environment',
 					},
 					{
 						name: 'Stop',
 						value: 'stop',
-						description: 'Stop a running environment. <a href="https://developer.cloudcli.ai/stop-environment-3998772e0" target="_blank">Documentation</a>.',
+						description: 'Stop a running environment',
 						action: 'Stop an environment',
 					},
 				],
@@ -115,7 +115,7 @@ export class CloudCli implements INodeType {
 					{
 						name: 'Execute',
 						value: 'execute',
-						description: 'Run Claude Code or Cursor agent on a running environment',
+						description: 'Send a message and execute Claude Code, Cursor, Codex or Gemini agent',
 						action: 'Execute an agent',
 					},
 				],

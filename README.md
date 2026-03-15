@@ -1,6 +1,6 @@
 # n8n-nodes-cloud-cli
 
-This is an n8n community node for [Cloud CLI](https://cloudcli.ai). It lets you manage cloud development environments and run AI coding agents (Claude Code, Cursor, Codex) directly from your n8n workflows.
+This is an n8n community node for [CloudCLI](https://cloudcli.ai). It lets you manage cloud development environments and run AI coding agents (Claude Code, Cursor, Codex) directly from your n8n workflows.
 
 [n8n](https://n8n.io/) is a fair-code licensed workflow automation platform.
 
@@ -25,7 +25,7 @@ Follow the [installation guide](https://docs.n8n.io/integrations/community-nodes
 
 ## Credentials
 
-You need a Cloud CLI API key to use this node. Get your API key from [cloudcli.ai/api-keys](https://cloudcli.ai/api-keys).
+You need a CloudCLI API key to use this node. Get your API key from [cloudcli.ai/api-keys](https://cloudcli.ai/api-keys).
 
 ## Resources
 

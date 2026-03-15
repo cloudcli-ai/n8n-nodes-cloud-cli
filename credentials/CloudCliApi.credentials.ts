@@ -8,7 +8,7 @@ import type {
 
 export class CloudCliApi implements ICredentialType {
 	name = 'cloudCliApi';
-	displayName = 'Cloud CLI API';
+	displayName = 'CloudCLI API';
 	documentationUrl = 'https://cloudcli.ai/api-keys';
 	icon: Icon = 'file:logo.svg';
 	properties: INodeProperties[] = [
