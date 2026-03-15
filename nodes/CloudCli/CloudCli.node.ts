@@ -336,7 +336,7 @@ export class CloudCli implements INodeType {
 				},
 				options: [
 					{
-						name: 'Claude',
+						name: 'Claude Code',
 						value: 'claude',
 					},
 					{
@@ -347,9 +347,13 @@ export class CloudCli implements INodeType {
 						name: 'Cursor',
 						value: 'cursor',
 					},
+										{
+						name: 'Gemini',
+						value: 'gemini',
+					},
 				],
 				default: 'claude',
-				description: 'AI provider to use',
+				description: 'AI coding agent to use',
 			},
 			// TODO: Add a model parameter to allow users to select the AI model 
 			{
